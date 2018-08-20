@@ -69,11 +69,12 @@ class AllureListener(object):
             description = str(attributes.get('doc'))
         else:
             description = name
-
+        severity = 'critical' if attributes['critical'] == 'yes' else 'normal'
         test = TestCase(name=name,
                 description=description,
                 start=now(),
                 attachments=[],
+				severity=severity,
                 labels=[],
 #                 parameters=[],
                 steps=[])
@@ -250,7 +251,7 @@ class AllureListener(object):
         # this check is needed because otherwise Suite Setup may fail.
         if len(self.stack) > 0:
 #             if msg['level']=='INFO':
-            if self.stack[-1].title == 'Selenium2Library.Capture Page Screenshot':
+            if msg['level']=='INFO' and self.stack[-1].title and self.stack[-1].title.lower().endswith('capture page screenshot'):
                 screenshot = re.search('[a-z]+-[a-z]+-[0-9]+.png',msg['message'])
                 if screenshot:
                     self.attach('{}'.format(screenshot.group(0)) , screenshot.group(0))
